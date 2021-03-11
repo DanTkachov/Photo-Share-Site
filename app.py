@@ -15,6 +15,13 @@ from flaskext.mysql import MySQL
 import flask_login
 from forms import UserSearchForm
 
+
+from dotenv import load_dotenv
+load_dotenv()
+import os
+DATABASE_PASSWORD = os.environ.get("DATABASE_PASSWORD")
+DATABASE_USER = os.environ.get("DATABASE_USER")
+
 #for image uploading
 import os, base64
 
@@ -22,9 +29,11 @@ mysql = MySQL()
 app = Flask(__name__)
 app.secret_key = 'super secret string'  # Change this!
 
+
+
 #These will need to be changed according to your creditionals
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'mQmtniREWYBo4ALV-dC2'
+app.config['MYSQL_DATABASE_USER'] = DATABASE_USER
+app.config['MYSQL_DATABASE_PASSWORD'] = DATABASE_PASSWORD
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)

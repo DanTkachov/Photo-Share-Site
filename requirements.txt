@@ -5,4 +5,5 @@ Flask-SQLAlchemy
 requests
 Werkzeug
 Flask-WTF
+python-dotenv
 
