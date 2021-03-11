@@ -13,6 +13,7 @@ import flask
 from flask import Flask, Response, request, render_template, redirect, url_for
 from flaskext.mysql import MySQL
 import flask_login
+from forms import UserSearchForm
 
 #for image uploading
 import os, base64
@@ -23,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '#PASSWORD'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'mQmtniREWYBo4ALV-dC2'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -123,27 +124,64 @@ def register_user():
 	try:
 		email=request.form.get('email')
 		password=request.form.get('password')
+		first_name = request.form.get('first_name')
+		last_name = request.form.get('last_name')
 	except:
 		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
 		return flask.redirect(flask.url_for('register'))
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
 	if test:
-		print(cursor.execute("INSERT INTO Users (email, password) VALUES ('{0}', '{1}')".format(email, password)))
+		print(cursor.execute("INSERT INTO Users (email, password, first_name, last_name) VALUES ('{0}', '{1}','{2}','{3}')".format(email, password, first_name, last_name)))
 		conn.commit()
 		#log user in
 		user = User()
 		user.id = email
 		flask_login.login_user(user)
-		return render_template('hello.html', name=email, message='Account Created!')
+		return render_template('hello.html', name=first_name, message='Account Created!')
 	else:
 		print("couldn't find all tokens")
 		return flask.redirect(flask.url_for('register'))
 
+
+@app.route("/search", methods=['GET','POST'])
+def search():
+	search = UserSearchForm(request.form)
+	if(request.method == 'POST'):
+		return search_results(search)
+
+
+	return render_template('search.html', form=search)
+
+
+#TODO
+@app.route('/results')
+def search_results(search):
+	results = []
+	search_string = search.search.data
+	select = search.select.data
+	cursor = conn.cursor()
+	cursor.execute("SELECT email, first_name, last_name, user_id FROM Users AS u WHERE {0} REGEXP '^{1}'".format(select,search_string))
+	results = cursor.fetchall()
+	return render_template('results.html', results=results)
+
+@app.route('/user/<uid>', methods=['GET'])
+def userProfile(uid):
+	return render_template('UserProfile.html', user=getUserInfo(uid), photos=getUsersPhotos(uid),base64=base64)
+
+def getUserInfo(uid):
+	cursor = conn.cursor()
+	cursor.execute("SELECT first_name, last_name FROM Users WHERE user_id = '{0}'".format(uid))
+	return cursor.fetchone()
 def getUsersPhotos(uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures WHERE user_id = '{0}'".format(uid))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
+
+def getPhotosForHomePage():
+	cursor = conn.cursor()
+	cursor.execute("SELECT imgdata, picture_id, caption, email FROM Pictures JOIN Users ON Pictures.user_id = Users.user_id")
+	return cursor.fetchall()
 
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
@@ -163,7 +201,8 @@ def isEmailUnique(email):
 @app.route('/profile')
 @flask_login.login_required
 def protected():
-	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile",photos=getUsersPhotos(uid),base64=base64)
 
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML
@@ -192,7 +231,7 @@ def upload_file():
 #default page
 @app.route("/", methods=['GET'])
 def hello():
-	return render_template('hello.html', message='Welecome to Photoshare')
+	return render_template('home.html', message='Welcome to Photoshare',photos=getPhotosForHomePage(),base64=base64)
 
 
 if __name__ == "__main__":

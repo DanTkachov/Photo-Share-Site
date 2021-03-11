@@ -9,12 +9,13 @@
 {% endif %}
 
 {% if photos %}
-<h2>Here are your photos</h2>
+<h2>Here are the photos on our network</h2>
     <ul>
     {% for photo in photos %}
 
         <li>{{photo[2]}}<br>
         <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+        <li>Posted by {{photo[3]}}</li>
     {% endfor %}
     </ul>
 {% endif %}

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<title>Search For Users</title>
+
+<h2>Search for Users</h2>
+
+{% from "_formhelpers.html" import render_field %}
+<form method="post">
+    <dl>
+        {{render_field(form.select)}}
+        <p>
+        {{render_field(form.search)}}
+        </p>
+    </dl>
+    <p>
+        <input type="submit" value="Search">
+    </p>
+</form>

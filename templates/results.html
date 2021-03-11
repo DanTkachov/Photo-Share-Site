@@ -1,0 +1,12 @@
+<!doctype html>
+
+<h1>Results</h1>
+{% if results %}
+<h2>Here are the results of your query</h2>
+    <ul>
+    {% for result in results %}
+
+        <li><a href="user/{{result[3]}}">{{result[0]}}</a><br>
+    {% endfor %}
+    </ul>
+{% endif %}

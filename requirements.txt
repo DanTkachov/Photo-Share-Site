@@ -4,4 +4,5 @@ flask-mysql
 Flask-SQLAlchemy
 requests
 Werkzeug
+Flask-WTF
 

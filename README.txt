@@ -6,5 +6,5 @@ To get the skeleton running, open a terminal and do the following:
 	4. run schema.sql using MySQL Workbench
 	5. open app.py using your favorite editor, change #PASSWORD in 'app.config['MYSQL_DATABASE_PASSWORD'] = '#PASSWORD'' to your MySQL root password
 
-	6. back to the terminal, run the app 'python -m flask run' (or use python3)
+	6. back to the terminal, run the app 'python3 -m flask run' (or use python3)
 	7. open your browser, and open the local website 'localhost:5000'
