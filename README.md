@@ -25,3 +25,25 @@
 - Please be super careful if you make any changes to the database schema. One small change could fuck everything up and I don't understand sql enough to debug it quickly.
 
 - Apart from that, go wild and lets make a photosharing app
+
+
+## TODO
+
+- Friends
+  - Adding Friends
+  - Listing Friends
+- Albums
+  - User's should be able to create an album and add photos to it
+  - If a non-empty album is deleted, the photos should also be purged (probably cascade delete in the sql schema)
+- Tags
+  - You should be able to tag photos
+  - If a tag doesn't exist it should be made
+  - You should be able to view all photos that belong to a tag
+  - You should be able to view the most popular tags
+  - You should be able to search for photos based on tags
+- Comments
+  - All users, registered and non-registered should be able to leave comments on photos
+  - Comments should be searchable by user or comment text
+- Reccomendations
+  - We should reccomend friends to users based on who they are friends with (friend of a friend approach)
+  - We should reccomend other photos that a user might like based on what they have posted and tagged

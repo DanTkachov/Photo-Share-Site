@@ -1,5 +1,25 @@
 <!-- author ben lawson (balawson@bu.edu) -->
 <!doctype html>
+
+<style>
+.photoDisplay{
+  margin: auto;
+  background-color: lightblue;
+  padding: 10px;
+  text-align: center;
+  width: 50%
+}
+.comments {
+    margin: auto;
+    background-color: #fed9ff;
+    width: 600px;
+    height: 150px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    text-align: center;
+    padding: 20px;
+}
+</style>
 {% if message %}
   <h4>{{message}}!</h4>
 {% endif %}
@@ -8,6 +28,7 @@
   <h1>Hello {{ name }}!</h1>
 {% endif %}
 
+<!--
 {% if photos %}
 <h2>Here are the photos on our network</h2>
     <ul>
@@ -19,6 +40,25 @@
     {% endfor %}
     </ul>
 {% endif %}
+-->
+{%if photos%}
+  <h2> Here are some photos from our network </h2>
+
+    {%for photo in photos%}
+      <div class="photoDisplay">
+        <h3>{{photo[2]}} - by: {{photo[3]}}</h3>
+        <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/>
+        <h3>comments</h3>
+        <form method="post" action="/comment/{{photo[1]}}">
+          {{form.comment.label}}:{{form.comment}}
+        </form>
+        <div class="comments">
+        </div>
+      </div>
+    {%endfor%}
+{%endif%}
+
+
 
 {% if message is none %}
   <p>You should <a href='/login'>login!</a></p>

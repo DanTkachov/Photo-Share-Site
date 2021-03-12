@@ -9,3 +9,6 @@ class UserSearchForm(Form):
                 ('email', 'email')]
     select = SelectField('Search for user:', choices=choices)
     search = StringField('')
+
+class CommentForm(Form):
+    comment = StringField('Leave a comment')

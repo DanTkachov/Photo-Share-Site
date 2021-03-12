@@ -13,7 +13,8 @@ import flask
 from flask import Flask, Response, request, render_template, redirect, url_for
 from flaskext.mysql import MySQL
 import flask_login
-from forms import UserSearchForm
+from forms import UserSearchForm, CommentForm
+from datetime import datetime
 
 
 from dotenv import load_dotenv
@@ -152,7 +153,15 @@ def register_user():
 		print("couldn't find all tokens")
 		return flask.redirect(flask.url_for('register'))
 
+'''
+	This is the search method
+	It's called whenever the user enters the search page.
 
+	It creates a form called search that is an object of type UserSearchForm defined in forms.py.
+
+	if it's a POST type, that means that the user has submitted information in a form and clicked submit or enter. 
+	In that case, it calls another method search_results with the search form as it's argument
+'''
 @app.route("/search", methods=['GET','POST'])
 def search():
 	search = UserSearchForm(request.form)
@@ -163,15 +172,21 @@ def search():
 	return render_template('search.html', form=search)
 
 
-#TODO
+'''
+	This is the search_results method
+
+	It takes a search form object and queries our database based on whatever the user searched for
+
+	It returns the results.html file with the query results passed as an argument
+'''
 @app.route('/results')
 def search_results(search):
 	results = []
-	search_string = search.search.data
-	select = search.select.data
-	cursor = conn.cursor()
-	cursor.execute("SELECT email, first_name, last_name, user_id FROM Users AS u WHERE {0} REGEXP '^{1}'".format(select,search_string))
-	results = cursor.fetchall()
+	search_string = search.search.data #search(the search for object).search(the search field in the form).data(the data inside of the search field)
+	select = search.select.data #select is the selection the user made to filter the search
+	cursor = conn.cursor() #we create a cursor in order to run an sql query
+	cursor.execute("SELECT email, first_name, last_name, user_id FROM Users AS u WHERE {0} REGEXP '^{1}'".format(select,search_string)) #we execute the query using our parameters from the search form object
+	results = cursor.fetchall() #fetchall grabs all the rows returned by our query as a list
 	return render_template('results.html', results=results)
 
 @app.route('/user/<uid>', methods=['GET'])
@@ -236,11 +251,24 @@ def upload_file():
 		return render_template('upload.html')
 #end photo uploading code
 
+@app.route("/comment/<photo_id>", methods=['POST'])
+def leaveComment(photo_id):
+	cursor = conn.cursor()
+	comment = request.form.get('comment')
+	print(comment)
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	now = datetime.now()
+	formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+	cursor.execute('''INSERT INTO Comments (user_id, comment_text, created_date) VALUES (%s,%s,%s)''',(uid,comment,formatted_date))
+	conn.commit()
+	return flask.redirect(flask.url_for('hello'))
 
 #default page
-@app.route("/", methods=['GET'])
+@app.route("/", methods=['GET','POST'])
 def hello():
-	return render_template('home.html', message='Welcome to Photoshare',photos=getPhotosForHomePage(),base64=base64)
+	comment = CommentForm(request.form) #I'm passing this form as an arugment to the html file so that each photo can have a comment input section
+
+	return render_template('home.html', message='Welcome to Photoshare',photos=getPhotosForHomePage(),base64=base64, form=comment)
 
 
 if __name__ == "__main__":
