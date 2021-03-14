@@ -15,13 +15,13 @@ from flaskext.mysql import MySQL
 import flask_login
 from forms import UserSearchForm, CommentForm
 from datetime import datetime
-
+import pw
 
 from dotenv import load_dotenv
 load_dotenv()
 import os
-DATABASE_PASSWORD = os.environ.get("DATABASE_PASSWORD")
-DATABASE_USER = os.environ.get("DATABASE_USER")
+DATABASE_PASSWORD = pw.DATABASE_PASSWORD_PW
+DATABASE_USER = pw.DATABASE_USER_PW
 
 #for image uploading
 import os, base64
@@ -142,7 +142,7 @@ def register_user():
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
 	if test:
-		print(cursor.execute("INSERT INTO Users (email, password, first_name, last_name) VALUES ('{0}', '{1}','{2}','{3}')".format(email, password, first_name, last_name)))
+		cursor.execute("INSERT INTO Users (email, password, first_name, last_name) VALUES ('{0}','{1}','{2}','{3}')".format(email, password, first_name, last_name))
 		conn.commit()
 		#log user in
 		user = User()
@@ -241,9 +241,12 @@ def upload_file():
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		imgfile = request.files['photo']
 		caption = request.form.get('caption')
+		tags = request.form.get('tags')
 		photo_data =imgfile.read()
 		cursor = conn.cursor()
 		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption) VALUES (%s, %s, %s )''' ,(photo_data,uid, caption))
+		conn.commit()
+		cursor.execute("INSERT INTO Tag (tag) VALUES (%s)",(tags))
 		conn.commit()
 		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
