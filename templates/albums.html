@@ -1,0 +1,29 @@
+<!doctype html>
+<!--
+
+    album[0]: album_id
+    album[1]: album_name
+    
+-->
+<title>Photoshare</title>
+
+  <h1>Album's on our Network</h1>
+
+{% if albums %}
+<h2>Albums</h2>
+    <ol>
+    {% for album in albums %}
+
+        <li><a href="/album/{{album[0]}}"> {{album[1]}}</a></li>
+
+    {% endfor %}
+        </ol>
+{% endif %}
+
+
+<ul>
+<li><a href='/upload'>Upload a photo</a> </li>
+<li><a href='/logout'>Logout</a></li>
+<li><a href='/search'>Search</a></li>
+<li><a href='/'>Home</a></li>
+</ul>

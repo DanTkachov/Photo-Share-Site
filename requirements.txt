@@ -6,4 +6,4 @@ requests
 Werkzeug
 Flask-WTF
 python-dotenv
-
+cryptography

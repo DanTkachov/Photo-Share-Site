@@ -1,0 +1,35 @@
+<!doctype html>
+
+<!--
+
+    album[0]: album_id
+    album[1]: album_name
+   
+    photo[0]: picture_data
+    photo[1]: picture_id
+    photo[2]: caption
+-->
+<title>Photoshare</title>
+
+  <h1>{{album[1]}}</h1>
+
+{% if photos %}
+<h2>Photos in this album</h2>
+    <ol>
+    {% for photo in photos %}
+
+        <li><a href="/album/{{album[0]}}/picture/{{photo[1]}}">{{photo[2]}}</a><br>
+    {% endfor %}
+    </ol>
+
+{% else%}
+<h2> This Album has no photos :( </h2>
+{% endif %}
+
+
+<ul>
+<li><a href='/upload'>Upload a photo</a> </li>
+<li><a href='/logout'>Logout</a></li>
+<li><a href='/search'>Search</a></li>
+<li><a href='/'>Home</a></li>
+</ul>
