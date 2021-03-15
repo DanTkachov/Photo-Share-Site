@@ -193,6 +193,15 @@ def search_results(search):
 def userProfile(uid):
 	return render_template('UserProfile.html', user=getUserInfo(uid), photos=getUsersPhotos(uid),base64=base64)
 
+@app.route('/user/<uid2>', methods=['GET','POST'])
+def addFriend(uid2):
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	cursor = conn.cursor()
+	print(uid,uid2)
+	cursor.execute("INSERT INTO Friends(user_id1, user_id2) VALUES (%s,%s)", (uid, uid2))
+	conn.commit()
+	return flask.redirect(flask.url_for('userProfile', uid=uid2))
+
 @app.route('/album/<album_id>', methods=['GET'])
 def album(album_id):
 	return render_template('albumpage.html', photos=getAlbumPhotos(album_id), album=getAlbumFromId(album_id),base64=base64)
@@ -204,7 +213,7 @@ def photoPage(album_id,picture_id):
 	return render_template('photoPage.html', photo=getPhotoFromId(picture_id), comments = getCommentsFromId(picture_id), base64=base64, form = comment)
 def getUserInfo(uid):
 	cursor = conn.cursor()
-	cursor.execute("SELECT first_name, last_name FROM Users WHERE user_id = '{0}'".format(uid))
+	cursor.execute("SELECT first_name, last_name, user_id FROM Users WHERE user_id = '{0}'".format(uid))
 	return cursor.fetchone()
 
 def getUsersPhotos(uid):
@@ -266,6 +275,7 @@ def isEmailUnique(email):
 		return False
 	else:
 		return True
+
 #end login code
 
 @app.route('/profile')
