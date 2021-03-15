@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<style>
+    .photoDisplay{
+      margin: auto;
+      background-color: lightblue;
+      padding: 10px;
+      text-align: center;
+      width: 50%
+    }
+    .comments {
+        margin: auto;
+        background-color: #fed9ff;
+        width: 600px;
+        height: 150px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        text-align: center;
+        padding: 20px;
+    }
+    </style>
+<title>Photoshare</title>
+
+<div class="photoDisplay">
+    <h3>{{photo[2]}}</h3>
+    <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/>
+    <h3>comments</h3>
+    <form method="post" action="/comment/{{photo[1]}}">
+      {{form.comment.label}}:{{form.comment}}
+    </form>
+    <div class="comments">
+    </div>
+  </div>
