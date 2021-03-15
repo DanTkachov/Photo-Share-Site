@@ -45,8 +45,12 @@
   <h2> Here are some photos from our network </h2>
 
     {%for photo in photos%}
+      
       <div class="photoDisplay">
         <h3>{{photo[2]}} - by: {{photo[3]}}</h3>
+        
+        <h4>Tags: {{tag}}</h4>
+        
         <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/>
         <h3>comments</h3>
         <form method="post" action="/comment/{{photo[1]}}">
@@ -55,6 +59,7 @@
         <div class="comments">
         </div>
       </div>
+      
     {%endfor%}
 {%endif%}
 

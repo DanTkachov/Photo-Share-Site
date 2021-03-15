@@ -197,6 +197,7 @@ def getUserInfo(uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT first_name, last_name FROM Users WHERE user_id = '{0}'".format(uid))
 	return cursor.fetchone()
+
 def getUsersPhotos(uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures WHERE user_id = '{0}'".format(uid))
@@ -207,11 +208,22 @@ def getPhotosForHomePage():
 	cursor.execute("SELECT imgdata, picture_id, caption, email FROM Pictures JOIN Users ON Pictures.user_id = Users.user_id")
 	return cursor.fetchall()
 
+def getTagsfromPhoto():
+	cursor = conn.cursor()
+	#cursor.execute("SELECT Tagged.tag FROM Tagged, Pictures WHERE Tagged.picture_id = Pictures.picture_id")
+	cursor.execute("SELECT Tagged.tag FROM Tagged JOIN Pictures ON Pictures.picture_id = Tagged.picture_id")
+	return cursor.fetchall()
+
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
 	cursor.execute("SELECT user_id  FROM Users WHERE email = '{0}'".format(email))
 	return cursor.fetchone()[0]
 
+def getNumberOfPhotos():
+	cursor = conn.cursor()
+	cursor.execute("SELECT LAST_INSERT_ID() FROM Pictures")
+	return cursor.fetchone()[0]
+	
 def isEmailUnique(email):
 	#use this to check if a email has already been registered
 	cursor = conn.cursor()
@@ -248,6 +260,10 @@ def upload_file():
 		conn.commit()
 		cursor.execute("INSERT INTO Tag (tag) VALUES (%s)",(tags))
 		conn.commit()
+		numPhoto = getNumberOfPhotos()
+		print(numPhoto)
+		#numphoto = numphoto + 1
+		cursor.execute("INSERT INTO Tagged (picture_id, tag) VALUES (%s, %s)",(numPhoto, tags))
 		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
@@ -270,9 +286,8 @@ def leaveComment(photo_id):
 @app.route("/", methods=['GET','POST'])
 def hello():
 	comment = CommentForm(request.form) #I'm passing this form as an arugment to the html file so that each photo can have a comment input section
-
-	return render_template('home.html', message='Welcome to Photoshare',photos=getPhotosForHomePage(),base64=base64, form=comment)
-
+	
+	return render_template('home.html', message='Welcome to Photoshare',photos=getPhotosForHomePage(), tagONE = getTagsfromPhoto(),base64=base64, form=comment)
 
 if __name__ == "__main__":
 	#this is invoked when in the shell  you run
