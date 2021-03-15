@@ -16,6 +16,10 @@
                 <label for="tags">Tags:</label>
                 <input type="text" name="tags" required='false'/><br/>
                 
+                Album: <select name="album" id="album">
+                    {%for album in albums%}
+                    <option value="{{album[0]}}">{{album[1]}}</option>
+                    {%endfor%}
                 <input type="submit" value="Upload" />
             </form>
     </body>
