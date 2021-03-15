@@ -15,13 +15,13 @@ from flaskext.mysql import MySQL
 import flask_login
 from forms import UserSearchForm, CommentForm
 from datetime import datetime
-
+import pw
 
 from dotenv import load_dotenv
 load_dotenv()
 import os
-DATABASE_PASSWORD = os.environ.get("DATABASE_PASSWORD")
-DATABASE_USER = os.environ.get("DATABASE_USER")
+DATABASE_PASSWORD = pw.DATABASE_PASSWORD_PW
+DATABASE_USER = pw.DATABASE_USER_PW
 
 #for image uploading
 import os, base64
@@ -142,7 +142,7 @@ def register_user():
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
 	if test:
-		print(cursor.execute("INSERT INTO Users (email, password, first_name, last_name) VALUES ('{0}', '{1}','{2}','{3}')".format(email, password, first_name, last_name)))
+		cursor.execute("INSERT INTO Users (email, password, first_name, last_name) VALUES ('{0}','{1}','{2}','{3}')".format(email, password, first_name, last_name))
 		conn.commit()
 		#log user in
 		user = User()
@@ -206,6 +206,7 @@ def getUserInfo(uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT first_name, last_name FROM Users WHERE user_id = '{0}'".format(uid))
 	return cursor.fetchone()
+
 def getUsersPhotos(uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures WHERE user_id = '{0}'".format(uid))
@@ -220,6 +221,12 @@ def getPhotosForHomePage():
 	cursor.execute("SELECT imgdata, picture_id, caption, email FROM Pictures JOIN Users ON Pictures.user_id = Users.user_id")
 	return cursor.fetchall()
 
+def getTagsfromPhoto():
+	cursor = conn.cursor()
+	#cursor.execute("SELECT Tagged.tag FROM Tagged, Pictures WHERE Tagged.picture_id = Pictures.picture_id")
+	cursor.execute("SELECT Tagged.tag FROM Tagged JOIN Pictures ON Pictures.picture_id = Tagged.picture_id")
+	return cursor.fetchall()
+
 def getAlbumFromId(album_id):
 	cursor = conn.cursor()
 	cursor.execute("SELECT album_id, album_name FROM Album WHERE album_id = '{0}'".format(album_id))
@@ -229,6 +236,10 @@ def getUserIdFromEmail(email):
 	cursor.execute("SELECT user_id  FROM Users WHERE email = '{0}'".format(email))
 	return cursor.fetchone()[0]
 
+def getNumberOfPhotos():
+	cursor = conn.cursor()
+	cursor.execute("SELECT LAST_INSERT_ID() FROM Pictures")
+	return cursor.fetchone()[0]
 def getPhotoFromId(picture_id):
 	cursor = conn.cursor()
 	cursor.execute("SELECT imgdata, picture_id, caption FROM Pictures WHERE picture_id = '{0}'".format(picture_id))
@@ -296,11 +307,18 @@ def upload_file():
 	if request.method == 'POST':	
 		imgfile = request.files['photo']
 		caption = request.form.get('caption')
+		tags = request.form.get('tags')
 		album_id = request.form.get('album')
 		photo_data =imgfile.read()
 		cursor = conn.cursor()
 		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption) VALUES (%s, %s, %s )''' ,(photo_data,uid, caption))
 		conn.commit()
+		cursor.execute("INSERT INTO Tag (tag) VALUES (%s)",(tags))
+		conn.commit()
+		numPhoto = getNumberOfPhotos()
+		print(numPhoto)
+		#numphoto = numphoto + 1
+		cursor.execute("INSERT INTO Tagged (picture_id, tag) VALUES (%s, %s)",(numPhoto, tags))
 		cursor = conn.cursor()
 		cursor.execute('''INSERT INTO AlbumContains (album_id, picture_id) VALUES (%s, (SELECT LAST_INSERT_ID()) )''' ,(album_id))
 		conn.commit()
@@ -326,9 +344,8 @@ def leaveComment(photo_id):
 @app.route("/", methods=['GET','POST'])
 def hello():
 	comment = CommentForm(request.form) #I'm passing this form as an arugment to the html file so that each photo can have a comment input section
-
-	return render_template('home.html', message='Welcome to Photoshare',photos=getPhotosForHomePage(),base64=base64, form=comment)
-
+	
+	return render_template('home.html', message='Welcome to Photoshare',photos=getPhotosForHomePage(), tagONE = getTagsfromPhoto(),base64=base64, form=comment)
 
 if __name__ == "__main__":
 	#this is invoked when in the shell  you run
