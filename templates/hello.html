@@ -7,7 +7,7 @@
 {% if name %}
   <h1>Hello {{ name }}!</h1>
 {% endif %}
-
+<td><form method="POST" action=""><button class="btn btn-primary" type="submit" formaction = '/{{user[2]}}/friendlist.html' name="getUserFriends" value = "{{user[2]}}">View Friends</button></form></td>
 {% if photos %}
 <h2>Here are your photos</h2>
     <ul>

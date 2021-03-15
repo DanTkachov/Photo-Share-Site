@@ -1,0 +1,8 @@
+<!doctype html>
+<title>Photoshare</title>
+    
+        <h1>{{ user[0] }}'s friends</h1>
+        {%for friend in friends%}
+            <li> {{friend[0]}}</li>
+        {%endfor%}
+    

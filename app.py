@@ -197,10 +197,21 @@ def userProfile(uid):
 def addFriend(uid2):
 	uid = getUserIdFromEmail(flask_login.current_user.id)
 	cursor = conn.cursor()
-	print(uid,uid2)
+	#print(uid,uid2)
 	cursor.execute("INSERT INTO Friends(user_id1, user_id2) VALUES (%s,%s)", (uid, uid2))
 	conn.commit()
 	return flask.redirect(flask.url_for('userProfile', uid=uid2))
+def getUserFriends(uid2):
+	cursor = conn.cursor()
+	print(uid2)
+	cursor.execute("SELECT DISTINCT first_name FROM Users JOIN Friends ON friends.user_id2 = Users.user_id")
+	#cursor.execute("SELECT DISTINCT user_id2 FROM friends WHERE user_id1 = %s",(uid2))
+	return cursor.fetchall()
+
+@app.route('/<uid>/friendlist.html', methods=['POST'])
+def viewFriends(uid):
+	return render_template('friendlist.html', friends = getUserFriends(uid), user = getUserInfo(uid), base64=base64)
+
 
 @app.route('/album/<album_id>', methods=['GET'])
 def album(album_id):
@@ -282,7 +293,7 @@ def isEmailUnique(email):
 @flask_login.login_required
 def protected():
 	uid = getUserIdFromEmail(flask_login.current_user.id)
-	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile",photos=getUsersPhotos(uid),base64=base64)
+	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile",photos=getUsersPhotos(uid),user = getUserInfo(uid),base64=base64)
 
 
 @app.route('/createalbum', methods=['GET'])
@@ -330,8 +341,8 @@ def upload_file():
 		#numphoto = numphoto + 1
 		cursor.execute("INSERT INTO Tagged (picture_id, tag) VALUES (%s, %s)",(numPhoto, tags))
 		cursor = conn.cursor()
-		cursor.execute('''INSERT INTO AlbumContains (album_id, picture_id) VALUES (%s, (SELECT LAST_INSERT_ID()) )''' ,(album_id))
-		conn.commit()
+		#cursor.execute('''INSERT INTO AlbumContains (album_id, picture_id) VALUES (%s, (SELECT LAST_INSERT_ID()) )''' ,(album_id))
+		#conn.commit()
 		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
