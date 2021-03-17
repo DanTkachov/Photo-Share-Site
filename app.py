@@ -193,6 +193,43 @@ def search_results(search):
 def userProfile(uid):
 	return render_template('UserProfile.html', user=getUserInfo(uid), photos=getUsersPhotos(uid),base64=base64)
 
+@app.route('/user/<uid2>', methods=['GET','POST'])
+def addFriend(uid2):
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	cursor = conn.cursor()
+	#print(uid,uid2)
+	cursor.execute("INSERT INTO Friends(user_id1, user_id2) VALUES (%s,%s)", (uid, uid2))
+	conn.commit()
+	return flask.redirect(flask.url_for('userProfile', uid=uid2))
+def getUserFriends(uid2):
+	cursor = conn.cursor()
+	#print(uid2)
+	cursor.execute("SELECT DISTINCT first_name FROM Users JOIN Friends ON friends.user_id2 = Users.user_id")
+	#cursor.execute("SELECT DISTINCT user_id2 FROM friends WHERE user_id1 = %s",(uid2))
+	return cursor.fetchall()
+
+@app.route('/<uid>/friendlist.html', methods=['POST'])
+def viewFriends(uid):
+	return render_template('friendlist.html', friends = getUserFriends(uid), user = getUserInfo(uid), base64=base64)
+
+
+def getContributionScores():
+	cursor = conn.cursor()
+	#con = cursor.execute("SELECT user_id FROM Pictures FULL JOIN Comments ON user_id GROUP BY user_id ORDER BY COUNT(*) DESC LIMIT 10")
+	#con = cursor.execute("SELECT users.first_name FROM users WHERE user_id IN (SELECT user_id FROM Pictures GROUP BY user_id ORDER BY COUNT(*) DESC LIMIT 10)")
+	con = cursor.execute(\
+		"SELECT users.first_name \
+			FROM users \
+				JOIN Pictures ON pictures.user_id = users.user_id \
+					JOIN comments ON comments.user_id = users.user_id \
+						GROUP BY users.user_id \
+							ORDER BY COUNT(*) DESC LIMIT 10")
+	print(con)
+	return cursor.fetchall()
+@app.route('/useractivity.html', methods=['POST'])	
+def viewActivity():
+	return render_template('useractivity.html', con=getContributionScores(), base64=base64)
+
 @app.route('/album/<album_id>', methods=['GET'])
 def album(album_id):
 	return render_template('albumpage.html', photos=getAlbumPhotos(album_id), album=getAlbumFromId(album_id),base64=base64)
@@ -204,7 +241,7 @@ def photoPage(album_id,picture_id):
 	return render_template('photoPage.html', photo=getPhotoFromId(picture_id), comments = getCommentsFromId(picture_id), base64=base64, form = comment)
 def getUserInfo(uid):
 	cursor = conn.cursor()
-	cursor.execute("SELECT first_name, last_name FROM Users WHERE user_id = '{0}'".format(uid))
+	cursor.execute("SELECT first_name, last_name, user_id FROM Users WHERE user_id = '{0}'".format(uid))
 	return cursor.fetchone()
 
 def getUsersPhotos(uid):
@@ -266,13 +303,14 @@ def isEmailUnique(email):
 		return False
 	else:
 		return True
+
 #end login code
 
 @app.route('/profile')
 @flask_login.login_required
 def protected():
 	uid = getUserIdFromEmail(flask_login.current_user.id)
-	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile",photos=getUsersPhotos(uid),base64=base64)
+	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile",photos=getUsersPhotos(uid),user = getUserInfo(uid),base64=base64)
 
 
 @app.route('/createalbum', methods=['GET'])
@@ -320,9 +358,9 @@ def upload_file():
 		#numphoto = numphoto + 1
 		cursor.execute("INSERT INTO Tagged (picture_id, tag) VALUES (%s, %s)",(numPhoto, tags))
 		cursor = conn.cursor()
-		cursor.execute('''INSERT INTO AlbumContains (album_id, picture_id) VALUES (%s, (SELECT LAST_INSERT_ID()) )''' ,(album_id))
-		conn.commit()
-		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
+		#cursor.execute('''INSERT INTO AlbumContains (album_id, picture_id) VALUES (%s, (SELECT LAST_INSERT_ID()) )''' ,(album_id))
+		#conn.commit()
+		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),user=getUserInfo(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
 		return render_template('upload.html', albums=getUserAlbums(uid))
