@@ -5,6 +5,7 @@
  <!-- <td> <form method="post" action=""><input type="button" onclick="alert('Friend Added!')" name={{user[2]}} value="Add Friend" required='false' /><br /></form></td> -->
   <td><form method="POST" action=""><button class="btn btn-primary" type="submit" name="addFriend" value = "{{user[2]}}">Add Friend</button></form></td>
   <td><form method="POST" action=""><button class="btn btn-primary" type="submit" formaction = '/{{user[2]}}/friendlist.html' name="getUserFriends" value = "{{user[2]}}">View Friends</button></form></td>
+
 {% if photos %}
 <h2>{{user[0]}}'s photos</h2>
     <ul>

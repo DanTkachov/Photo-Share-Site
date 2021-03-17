@@ -203,7 +203,7 @@ def addFriend(uid2):
 	return flask.redirect(flask.url_for('userProfile', uid=uid2))
 def getUserFriends(uid2):
 	cursor = conn.cursor()
-	print(uid2)
+	#print(uid2)
 	cursor.execute("SELECT DISTINCT first_name FROM Users JOIN Friends ON friends.user_id2 = Users.user_id")
 	#cursor.execute("SELECT DISTINCT user_id2 FROM friends WHERE user_id1 = %s",(uid2))
 	return cursor.fetchall()
@@ -212,6 +212,23 @@ def getUserFriends(uid2):
 def viewFriends(uid):
 	return render_template('friendlist.html', friends = getUserFriends(uid), user = getUserInfo(uid), base64=base64)
 
+
+def getContributionScores():
+	cursor = conn.cursor()
+	#con = cursor.execute("SELECT user_id FROM Pictures FULL JOIN Comments ON user_id GROUP BY user_id ORDER BY COUNT(*) DESC LIMIT 10")
+	#con = cursor.execute("SELECT users.first_name FROM users WHERE user_id IN (SELECT user_id FROM Pictures GROUP BY user_id ORDER BY COUNT(*) DESC LIMIT 10)")
+	con = cursor.execute(\
+		"SELECT users.first_name \
+			FROM users \
+				JOIN Pictures ON pictures.user_id = users.user_id \
+					JOIN comments ON comments.user_id = users.user_id \
+						GROUP BY users.user_id \
+							ORDER BY COUNT(*) DESC LIMIT 10")
+	print(con)
+	return cursor.fetchall()
+@app.route('/useractivity.html', methods=['POST'])	
+def viewActivity():
+	return render_template('useractivity.html', con=getContributionScores(), base64=base64)
 
 @app.route('/album/<album_id>', methods=['GET'])
 def album(album_id):
@@ -343,7 +360,7 @@ def upload_file():
 		cursor = conn.cursor()
 		#cursor.execute('''INSERT INTO AlbumContains (album_id, picture_id) VALUES (%s, (SELECT LAST_INSERT_ID()) )''' ,(album_id))
 		#conn.commit()
-		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
+		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),user=getUserInfo(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
 		return render_template('upload.html', albums=getUserAlbums(uid))
