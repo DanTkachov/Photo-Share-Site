@@ -408,6 +408,8 @@ def isEmailUnique(email):
 
 #end login code
 
+
+
 @app.route('/profile')
 @flask_login.login_required
 def protected():
@@ -443,6 +445,19 @@ def myAlbumsPage():
 	else:
 		return flask.redirect(flask.url_for('login'))
 
+
+
+
+@app.route('/deletePicture/<picture_id>.html', methods = ['POST'])
+def deletePicture(picture_id):
+	cursor = conn.cursor()
+	#cursor.execute("DELETE FROM Tagged WHERE picture_id = '{0}'".format(int(picture_id)))
+	#cursor.execute("DELETE FROM UserLikes WHERE picture_id = '{0}'".format(int(picture_id)))
+	#cursor.execute("DELETE FROM HasComment WHERE picture_id = '{0}'".format(int(picture_id)))
+	#cursor.execute("DELETE FROM AlbumContains WHERE picture_id = '{0}'".format(int(picture_id)))
+	cursor.execute("DELETE FROM Pictures WHERE picture_id = '{0}'".format(int(picture_id)))
+	conn.commit()
+	return flask.redirect(flask.url_for('hello'))
 
 @app.route('/deleteAlbum/<album_id>.html', methods = ['POST'])
 def deleteAlbum(album_id):

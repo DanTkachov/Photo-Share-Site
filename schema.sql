@@ -79,6 +79,7 @@ CREATE TABLE AlbumContains (
         ON DELETE CASCADE,
     CONSTRAINT picture_fk_ac FOREIGN KEY (picture_id)
         REFERENCES Pictures (picture_id)
+        ON DELETE CASCADE,
 );
 
 CREATE TABLE Friends (
@@ -108,6 +109,7 @@ CREATE TABLE HasComment (
         REFERENCES Comments (comment_id),
     CONSTRAINT picture_fk_hc FOREIGN KEY (picture_id)
         REFERENCES Pictures (picture_id)
+        ON DELETE CASCADE,
 );
 CREATE TABLE Tagged (
     picture_id INT4 NOT NULL,

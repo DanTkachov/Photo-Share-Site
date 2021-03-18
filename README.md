@@ -39,7 +39,7 @@
   - ~~If a non-empty album is deleted, the photos should also be purged (probably cascade delete in the sql schema)~~
   - User should only be able to delete own album
 - Photos
-  - Allow user to delete individual photos
+  - ~~Allow user to delete individual photos~~
   - see the users that liked this photo  ????????????????
   - ~~must be able to see how many likes a photo has~~
 - Tags

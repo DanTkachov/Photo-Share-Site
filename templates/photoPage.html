@@ -31,6 +31,9 @@
     <form method="post">
     <button  class="btn btn-primary" formaction ='/like/{{photo[1]}}.html'>Like this Photo!</button>
     </form>
+    <form method="post">
+    <button  class="btn btn-primary" formaction ='/deletePicture/{{photo[1]}}.html'>Delete this Photo!</button>
+    </form>
     <h3>comments</h3>
     <form method="post" action="/comment/{{photo[1]}}">
       {{form.comment.label}}:{{form.comment}}
