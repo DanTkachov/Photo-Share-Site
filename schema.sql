@@ -113,9 +113,11 @@ CREATE TABLE Tagged (
     picture_id INT4 NOT NULL,
     tag VARCHAR(255),
     CONSTRAINT tag_fk_t FOREIGN KEY (tag)
-        REFERENCES Tag (tag),
+        REFERENCES Tag (tag)
+        ON DELETE CASCADE,
     CONSTRAINT picture_fk_t FOREIGN KEY (picture_id)
         REFERENCES Pictures (picture_id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS UserLikes (

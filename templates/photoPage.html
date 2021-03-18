@@ -35,6 +35,14 @@
     <form method="post" action="/comment/{{photo[1]}}">
       {{form.comment.label}}:{{form.comment}}
     </form>
+    <div>
+    <p>Tags</p>
+    <tr>
+    {%for tag in tags%}
+    <th><a href="/tag/{{tag[0]}}">{{tag[0]}}</a></th>;
+    {%endfor%}
+    </tr>
+    </div>
     <div class="comments">
       <ul>
         {%for comment in comments%}

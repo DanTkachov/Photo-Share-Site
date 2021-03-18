@@ -136,14 +136,15 @@ def register_user():
 		password=request.form.get('password')
 		first_name = request.form.get('first_name')
 		last_name = request.form.get('last_name')
-		print("here")
+		birthdate = request.form.get('birthdate')
+		#print("here")
 	except:
 		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
 		return flask.redirect(flask.url_for('register'))
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
 	if test:
-		cursor.execute("INSERT INTO Users (email, password, first_name, last_name) VALUES ('{0}','{1}','{2}','{3}')".format(email, password, first_name, last_name))
+		cursor.execute("INSERT INTO Users (email, password, first_name, last_name, dob) VALUES ('{0}','{1}','{2}','{3}', '{4}')".format(email, password, first_name, last_name,birthdate))
 		conn.commit()
 		#log user in
 		user = User()
@@ -284,13 +285,18 @@ def album(album_id):
 @app.route('/picture/<picture_id>', methods=['GET'])
 def photoPage(picture_id):
 	comment = CommentForm(request.form)
-	return render_template('photoPage.html', photo=getPhotoFromId(picture_id), comments = getCommentsFromId(picture_id), base64=base64, form = comment, likes = getNumLikes(picture_id))
+	return render_template('photoPage.html', photo=getPhotoFromId(picture_id), comments = getCommentsFromId(picture_id), base64=base64, form = comment, likes = getNumLikes(picture_id), tags = getTagsfromPhoto(picture_id))
 
 
 @app.route('/populartags', methods=['GET'])
 def popularTagsPage():
 	results = getMostPopularTags()
 	return render_template('populartags.html', results = results)
+
+@app.route('/tag/<tag>', methods=['GET'])
+def tagsPage(tag):
+	results = getAllPhotosByTag(tag)
+	return render_template('tag.html', results = results, tag=tag)
 
 def getUserInfo(uid):
 	cursor = conn.cursor()
@@ -312,11 +318,12 @@ def getPhotosForHomePage():
 	cursor.execute("SELECT imgdata, picture_id, caption, email FROM Pictures JOIN Users ON Pictures.user_id = Users.user_id")
 	return cursor.fetchall()
 
-def getTagsfromPhoto():
+def getTagsfromPhoto(picture_id):
 	cursor = conn.cursor()
 	#cursor.execute("SELECT Tagged.tag FROM Tagged, Pictures WHERE Tagged.picture_id = Pictures.picture_id")
-	cursor.execute("SELECT Tagged.tag FROM Tagged JOIN Pictures ON Pictures.picture_id = Tagged.picture_id")
+	cursor.execute("SELECT Tagged.tag FROM Tagged JOIN Pictures ON Pictures.picture_id = Tagged.picture_id WHERE Pictures.picture_id = '{0}'".format(picture_id))
 	return cursor.fetchall()
+
 
 def getAlbumFromId(album_id):
 	cursor = conn.cursor()
@@ -496,7 +503,7 @@ def leaveComment(photo_id):
 def hello():
 	comment = CommentForm(request.form) #I'm passing this form as an arugment to the html file so that each photo can have a comment input section
 	
-	return render_template('home.html', message='Welcome to Photoshare',photos=getPhotosForHomePage(), tagONE = getTagsfromPhoto(),base64=base64, form=comment)
+	return render_template('home.html', message='Welcome to Photoshare',photos=getPhotosForHomePage(), base64=base64, form=comment)
 
 if __name__ == "__main__":
 	#this is invoked when in the shell  you run

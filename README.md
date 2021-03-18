@@ -29,7 +29,7 @@
 
 ## TODO
 - Registering Users
-  - Add Date of Birth entry field on registration page
+  - ~~Add Date of Birth entry field on registration page~~
   - Produce Error message when duplicate email is entered
 - Friends
   - ~~Adding Friends~~
@@ -48,8 +48,8 @@
   - ~~You should be able to view all photos that belong to a tag~~
   - ~~You should be able to view the most popular tags~~
   - ~~You should be able to search for photos based on tags~~
-  -  tags should be clickable so that when a user clicks one of them all photos
-tagged with this tag are listed.
+  -  ~~tags should be clickable so that when a user clicks one of them all photos
+tagged with this tag are listed.~~
 
 - Comments
   - ~~All users, registered and non-registered should be able to leave comments on photos~~
