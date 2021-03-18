@@ -124,6 +124,9 @@ def logout():
 def unauthorized_handler():
 	return render_template('unauth.html')
 
+@app.route("/EmailNotUnique.html")
+def EmailNotUnique():
+	return render_template('EmailNotUnique.html')
 #you can specify specific methods (GET/POST) in function header instead of inside the functions as seen earlier
 @app.route("/register", methods=['GET'])
 def register():
@@ -143,6 +146,7 @@ def register_user():
 		return flask.redirect(flask.url_for('register'))
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
+	print(test)
 	if test:
 		cursor.execute("INSERT INTO Users (email, password, first_name, last_name, dob) VALUES ('{0}','{1}','{2}','{3}', '{4}')".format(email, password, first_name, last_name,birthdate))
 		conn.commit()
@@ -153,7 +157,7 @@ def register_user():
 		return render_template('hello.html', name=first_name, message='Account Created!')
 	else:
 		print("email not unique")
-		return flask.redirect(('/'))
+		return flask.redirect(flask.url_for('EmailNotUnique'))
 
 '''
 	This is the search method
@@ -164,6 +168,8 @@ def register_user():
 	if it's a POST type, that means that the user has submitted information in a form and clicked submit or enter. 
 	In that case, it calls another method search_results with the search form as it's argument
 '''
+
+
 @app.route("/search", methods=['GET','POST'])
 def search():
 	search = UserSearchForm(request.form)
