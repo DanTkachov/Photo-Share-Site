@@ -120,6 +120,8 @@ CREATE TABLE Tagged (
 CREATE TABLE IF NOT EXISTS UserLikes (
     picture_id INT4 NOT NULL,
     user_id INT4 NOT NULL,
+    PRIMARY KEY (picture_id),
+    PRIMARY KEY (user_id),
     CONSTRAINT picture_fk_ul FOREIGN KEY (picture_id)
         REFERENCES Pictures (picture_id)
         ON DELETE CASCADE,

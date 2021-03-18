@@ -1,5 +1,8 @@
 <!-- author ben lawson (balawson@bu.edu) -->
 <!doctype html>
+{%extends "base.html"%}
+
+{%block content%}
 {% if message %}
   <h4>{{message}}!</h4>
 {% endif %}
@@ -13,13 +16,6 @@
   <p> Go to <a href='/profile'>profile?</a></p>
 {% endif %}
 
-<ul>
-<li><a href='/upload'>Upload a photo</a> </li>
-<li><a href='/logout'>Logout</a></li>
-<li><a href='/search'>Search For Users</a></li>
-<li><a href='/searchTag'>Search By Tag</a></li>
-<li><a href='/'>Home</a></li>
-</ul>
 {% if photos %}
 <h2>Here are your photos</h2>
     <ul>
@@ -30,5 +26,5 @@
     {% endfor %}
     </ul>
 {% endif %}
-
+{%endblock%}
 

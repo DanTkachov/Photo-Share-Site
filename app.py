@@ -179,6 +179,20 @@ def searchTag():
 
 
 	return render_template('searchtag.html')
+
+
+@app.route("/like/<picture_id>.html", methods=['POST'])
+def likePhoto(picture_id):
+	if(flask_login.current_user.is_authenticated):
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		cursor = conn.cursor()
+		cursor.execute("INSERT IGNORE INTO UserLikes (picture_id, user_id) VALUES (%s,%s)",(picture_id, uid))
+		conn.commit()
+		return flask.redirect(('/picture/'+picture_id))
+	else:
+		return render_template("home.html", message = "Please login to like a photo")
+
+
 def search_by_tag(tag):
 	results = getAllPhotosByTag(tag)
 	print(results)
@@ -342,7 +356,7 @@ def getMostPopularTags():
 def isEmailUnique(email):
 	#use this to check if a email has already been registered
 	cursor = conn.cursor()
-	if cursor.execute("SELECT email  FROM Users WHERE email = '{0}'".format(email)):
+	if cursor.execute("SELECT email FROM Users WHERE email = '{0}'".format(email)):
 		#this means there are greater than zero entries with that email
 		return False
 	else:

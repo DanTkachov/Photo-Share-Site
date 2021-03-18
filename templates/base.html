@@ -1,21 +1,32 @@
 <html>
 <style>
-    th{
-        border: 1px solid black;
+    .header{
+        margin-left: auto;
+        margin-right: auto;
+        border-collapse: separate;
+        border-spacing: 5em;
+
+    }
+
+    .content {
+        padding-right: 10%;
+        padding-left: 10%; 
     }
 </style>
-<table>
-    <tr width=100%>
+<table class="header">
+    <tr>
         <th><a href='/upload'>Upload a photo</a> </th>
         <th><a href='/logout'>Logout</a></th>
         <th><a href='/search'>Search</a></th>
         <th><a href='/searchTag'>Search By Tag</a></th>
         <th><a href='/albums'>Albums</a></th>
         <th><a href='/createalbum'>Create an Album</a></th>
-         <th><a href='/populartags'>Most Popular Tags</a></th>
+        <th><a href='/populartags'>Most Popular Tags</a></th>
         <th><a href='/'>Home</a></th>
     </tr>
 </table>
+<div class="content">
     {%block content%}
     {%endblock%}
+</div>
 </html>
