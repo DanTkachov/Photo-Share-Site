@@ -213,10 +213,10 @@ def addFriend(uid2):
 	cursor.execute("INSERT INTO Friends(user_id1, user_id2) VALUES (%s,%s)", (uid, uid2))
 	conn.commit()
 	return flask.redirect(flask.url_for('userProfile', uid=uid2))
-def getUserFriends(uid2):
+def getUserFriends(uid):
 	cursor = conn.cursor()
 	#print(uid2)
-	cursor.execute("SELECT DISTINCT first_name FROM Users JOIN Friends ON friends.user_id2 = Users.user_id")
+	cursor.execute("SELECT DISTINCT first_name FROM Users WHERE user_id = (SELECT user_id2 FROM friends WHERE user_id1 = %s)",(uid))
 	#cursor.execute("SELECT DISTINCT user_id2 FROM friends WHERE user_id1 = %s",(uid2))
 	return cursor.fetchall()
 
@@ -241,6 +241,18 @@ def getContributionScores():
 @app.route('/useractivity.html', methods=['POST'])	
 def viewActivity():
 	return render_template('useractivity.html', con=getContributionScores(), base64=base64)
+
+def findFriends(uid):
+	cursor = conn.cursor()
+	#con = cursor.execute('SELECT user_id2 AS uid2 FROM Friends WHERE user_id1 = %s',(uid))
+	con2 = cursor.execute('SELECT first_name FROM users WHERE user_id IN (SELECT user_id2 FROM Friends WHERE user_id1 IN (SELECT user_id2 AS uid2 FROM Friends WHERE user_id1 = %s))',(uid))
+	#print(con)
+	print(con2)
+	return cursor.fetchall()
+@app.route('/fr.html', methods=['POST'])
+def recommendFriends():
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	return render_template('fr.html', user=getUserInfo(uid),  fr=findFriends(uid), base64=base64)
 
 @app.route('/album/<album_id>', methods=['GET'])
 def album(album_id):
@@ -272,6 +284,7 @@ def getAlbumPhotos(album_id):
 	cursor = conn.cursor()
 	cursor.execute("SELECT imgdata, p.picture_id, caption FROM Pictures AS p JOIN AlbumContains AS a ON p.picture_id = a.picture_id WHERE a.album_id = '{0}'".format(album_id))
 	return cursor.fetchall()
+
 def getPhotosForHomePage():
 	cursor = conn.cursor()
 	cursor.execute("SELECT imgdata, picture_id, caption, email FROM Pictures JOIN Users ON Pictures.user_id = Users.user_id")

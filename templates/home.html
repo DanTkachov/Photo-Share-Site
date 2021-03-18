@@ -53,6 +53,7 @@
 {%if photos%}
   <h2> Here are some photos from our network </h2>
   <td><form method="POST" action=""><button class="btn btn-primary" type="submit" formaction = '/useractivity.html' name="getCons" value = "">View Contributions!</button></form></td>
+  <td><form method="POST" action=""><button class="btn btn-primary" type="submit" formaction = '/fr.html' name="FindNewFriends" value = "">Find New Friends!</button></form></td>
     {%for photo in photos%}
       
       <div class="photoDisplay">
@@ -60,7 +61,7 @@
         
         <h4>Tags: {{tag}}</h4>
         
-        <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/>
+        <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}', style="width: 800px"/>
         <h3>comments</h3>
         <form method="post" action="/comment/{{photo[1]}}">
           {{form.comment.label}}:{{form.comment}}
