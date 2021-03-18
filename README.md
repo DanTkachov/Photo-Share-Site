@@ -28,22 +28,32 @@
 
 
 ## TODO
-
+- Registering Users
+  - Add Date of Birth entry field on registration page
+  - Produce Error message when duplicate email is entered
 - Friends
   - ~~Adding Friends~~
   - ~~Listing Friends~~
 - Albums
   - ~~User's should be able to create an album and add photos to it~~
   - ~~If a non-empty album is deleted, the photos should also be purged (probably cascade delete in the sql schema)~~
+  - User should only be able to delete own album
+- Photos
+  - Allow user to delete individual photos
+  - see the users that liked this photo  ????????????????
+  - must be able to see how many likes a photo has 
 - Tags
   - ~~You should be able to tag photos~~
   - ~~If a tag doesn't exist it should be made~~
   - ~~You should be able to view all photos that belong to a tag~~
   - ~~You should be able to view the most popular tags~~
   - ~~You should be able to search for photos based on tags~~
+  -  tags should be clickable so that when a user clicks one of them all photos
+tagged with this tag are listed.
+
 - Comments
   - All users, registered and non-registered should be able to leave comments on photos
-  - Comments should be searchable by user or comment text
+  - Comments should be searchable by comment text
 - Reccomendations
   - ~~We should reccomend friends to users based on who they are friends with (friend of a friend approach)~~
   - We should reccomend other photos that a user might like based on what they have posted and tagged
