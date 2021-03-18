@@ -210,7 +210,9 @@ def addFriend(uid2):
 	uid = getUserIdFromEmail(flask_login.current_user.id)
 	cursor = conn.cursor()
 	#print(uid,uid2)
-	cursor.execute("INSERT INTO Friends(user_id1, user_id2) VALUES (%s,%s)", (uid, uid2))
+	cursor.execute("INSERT IGNORE INTO Friends(user_id1, user_id2) VALUES (%s,%s)", (uid, uid2))
+	conn.commit()
+	cursor.execute("INSERT IGNORE INTO Friends(user_id2, user_id1) VALUES (%s,%s)", (uid, uid2))
 	conn.commit()
 	return flask.redirect(flask.url_for('userProfile', uid=uid2))
 def getUserFriends(uid):
@@ -244,10 +246,8 @@ def viewActivity():
 
 def findFriends(uid):
 	cursor = conn.cursor()
-	#con = cursor.execute('SELECT user_id2 AS uid2 FROM Friends WHERE user_id1 = %s',(uid))
-	con2 = cursor.execute('SELECT first_name FROM users WHERE user_id IN (SELECT user_id2 FROM Friends WHERE user_id1 IN (SELECT user_id2 AS uid2 FROM Friends WHERE user_id1 = %s))',(uid))
-	#print(con)
-	print(con2)
+	logged = getUserIdFromEmail(flask_login.current_user.id)
+	con2 = cursor.execute('SELECT first_name FROM users WHERE user_id <> %s AND user_id IN (SELECT user_id2 FROM Friends WHERE user_id1 IN (SELECT user_id2 AS uid2 FROM Friends WHERE user_id1 = %s))',(logged, uid))
 	return cursor.fetchall()
 @app.route('/fr.html', methods=['POST'])
 def recommendFriends():
