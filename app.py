@@ -136,6 +136,7 @@ def register_user():
 		password=request.form.get('password')
 		first_name = request.form.get('first_name')
 		last_name = request.form.get('last_name')
+		print("here")
 	except:
 		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
 		return flask.redirect(flask.url_for('register'))
@@ -150,8 +151,8 @@ def register_user():
 		flask_login.login_user(user)
 		return render_template('hello.html', name=first_name, message='Account Created!')
 	else:
-		print("couldn't find all tokens")
-		return flask.redirect(flask.url_for('register'))
+		print("email not unique")
+		return flask.redirect(('/'))
 
 '''
 	This is the search method
@@ -180,7 +181,14 @@ def searchTag():
 
 	return render_template('searchtag.html')
 
+@app.route("/searchComment", methods=['GET','POST'])
+def searchComment():
+	if(request.method == 'POST'):
+		comment = request.form.get("searchcomment")
+		return search_by_comment(comment)
 
+
+	return render_template('searchcomment.html')
 @app.route("/like/<picture_id>.html", methods=['POST'])
 def likePhoto(picture_id):
 	if(flask_login.current_user.is_authenticated):
@@ -197,6 +205,11 @@ def search_by_tag(tag):
 	results = getAllPhotosByTag(tag)
 	print(results)
 	return render_template('searchtag.html', results = results)
+
+def search_by_comment(comment):
+	results = getAllCommentsByText(comment)
+	print(results)
+	return render_template('searchComment.html', results = results)
 
 '''
 	This is the search_results method
@@ -271,7 +284,7 @@ def album(album_id):
 @app.route('/picture/<picture_id>', methods=['GET'])
 def photoPage(picture_id):
 	comment = CommentForm(request.form)
-	return render_template('photoPage.html', photo=getPhotoFromId(picture_id), comments = getCommentsFromId(picture_id), base64=base64, form = comment)
+	return render_template('photoPage.html', photo=getPhotoFromId(picture_id), comments = getCommentsFromId(picture_id), base64=base64, form = comment, likes = getNumLikes(picture_id))
 
 
 @app.route('/populartags', methods=['GET'])
@@ -325,11 +338,28 @@ def getPhotoFromId(picture_id):
 
 def getCommentsFromId(picture_id):
 	cursor = conn.cursor()
-	cursor.execute("SELECT * FROM Comments as c JOIN HasComment AS hc ON c.comment_id = hc.comment_id WHERE hc.picture_id = '{0}'".format(picture_id))
+	cursor.execute("SELECT c.comment_text, u.email, c.created_date FROM Comments as c JOIN HasComment AS hc ON c.comment_id = hc.comment_id LEFT JOIN Users AS u ON u.user_id = c.user_id WHERE hc.picture_id = {0}".format(picture_id))
 	return cursor.fetchall()
+
+def getAllCommentsByText(comment):
+	cursor = conn.cursor()
+	cursor.execute("SELECT c.comment_text, u.email, c.created_date, hc.picture_id FROM Comments as c JOIN HasComment AS hc ON c.comment_id = hc.comment_id LEFT JOIN Users AS u ON u.user_id = c.user_id WHERE comment_text = '{0}'".format(comment))
+	return cursor.fetchall()
+def getNumLikes(picture_id):
+	cursor = conn.cursor()
+	cursor.execute("SELECT COUNT(*) AS Likes, picture_id FROM UserLikes GROUP BY picture_id HAVING picture_id = '{0}'".format(picture_id))
+	numLikes =  cursor.fetchone()
+	if(numLikes == None):
+		return 0
+	else:
+		return numLikes[0]
 def getAllAlbums():
 	cursor = conn.cursor()
 	cursor.execute("SELECT album_id, album_name FROM Album")
+	return cursor.fetchall()
+def getMyAlbums(uid):
+	cursor = conn.cursor()
+	cursor.execute("SELECT album_id, album_name FROM Album WHERE user_id = {0}".format(uid))
 	return cursor.fetchall()
 def getUserAlbums(uid):
 	cursor = conn.cursor()
@@ -385,6 +415,15 @@ def albumsPage():
 	albums = getAllAlbums()
 	return render_template('albums.html', albums = albums)
 
+@app.route('/myalbums', methods=['GET'])
+def myAlbumsPage():
+	if(flask_login.current_user.is_authenticated):
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		albums = getMyAlbums(uid)
+		return render_template('myAlbums.html', albums = albums)
+	else:
+		return flask.redirect(flask.url_for('login'))
+
 
 @app.route('/deleteAlbum/<album_id>.html', methods = ['POST'])
 def deleteAlbum(album_id):
@@ -437,16 +476,19 @@ def leaveComment(photo_id):
 		cursor = conn.cursor()
 		comment = request.form.get('comment')
 		print(comment)
-		uid = getUserIdFromEmail(flask_login.current_user.id)
 		now = datetime.now()
 		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
 		if(flask_login.current_user.is_authenticated):
+			uid = getUserIdFromEmail(flask_login.current_user.id)
 			cursor.execute('''INSERT INTO Comments (user_id, comment_text, created_date) VALUES (%s,%s,%s)''',(uid,comment,formatted_date))
 			conn.commit()
+			cursor.execute('''INSERT INTO OwnsComment (user_id, comment_id) VALUES (%s,(SELECT LAST_INSERT_ID()))''',(uid))
 		else:
-			cursor.execute('''INSERT INTO Comments  (comment_text, created_date) VALUES (%s,%s,%s)''',(comment,formatted_date))
+			cursor.execute('''INSERT INTO Comments  (comment_text, created_date) VALUES (%s,%s)''',(comment,formatted_date))
 			conn.commit()
-		return flask.redirect(flask.url_for('hello'))
+		cursor.execute('''INSERT INTO HasComment (picture_id, comment_id) VALUES (%s, (SELECT LAST_INSERT_ID())) ''',(photo_id))
+		conn.commit()
+		return flask.redirect("/picture/"+photo_id)
 
 
 #default page

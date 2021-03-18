@@ -15,7 +15,7 @@
         height: 150px;
         overflow-x: hidden;
         overflow-y: auto;
-        text-align: center;
+        text-align: left;
         padding: 20px;
     }
     </style>
@@ -27,12 +27,20 @@
 <div class="photoDisplay">
     <h3>{{photo[2]}}</h3>
     <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/>
-    <button class="btn btn-primary" formaction = '/like/{{photo[1]}}.html' name="like" value = "">Like this Photo!</button>
+    <p>{{likes}} likes</p>
+    <form method="post">
+    <button  class="btn btn-primary" formaction ='/like/{{photo[1]}}.html'>Like this Photo!</button>
+    </form>
     <h3>comments</h3>
     <form method="post" action="/comment/{{photo[1]}}">
       {{form.comment.label}}:{{form.comment}}
     </form>
     <div class="comments">
+      <ul>
+        {%for comment in comments%}
+          <li>{{comment[1]}} says: {{comment[0]}} -- {{comment[2]}}</li>
+        {%endfor%}
+      </ul>
     </div>
   </div>
 {%endblock%}

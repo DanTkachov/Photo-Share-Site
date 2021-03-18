@@ -41,7 +41,7 @@
 - Photos
   - Allow user to delete individual photos
   - see the users that liked this photo  ????????????????
-  - must be able to see how many likes a photo has 
+  - ~~must be able to see how many likes a photo has~~
 - Tags
   - ~~You should be able to tag photos~~
   - ~~If a tag doesn't exist it should be made~~
@@ -52,8 +52,8 @@
 tagged with this tag are listed.
 
 - Comments
-  - All users, registered and non-registered should be able to leave comments on photos
-  - Comments should be searchable by comment text
+  - ~~All users, registered and non-registered should be able to leave comments on photos~~
+  - ~~Comments should be searchable by comment text~~
 - Reccomendations
   - ~~We should reccomend friends to users based on who they are friends with (friend of a friend approach)~~
   - We should reccomend other photos that a user might like based on what they have posted and tagged

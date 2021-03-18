@@ -1,0 +1,27 @@
+{%extends "base.html"%}
+<!doctype html>
+<!--
+
+    album[0]: album_id
+    album[1]: album_name
+    
+-->
+{%block content%}
+<title>Photoshare</title>
+
+  <h1>Your Albums</h1>
+
+{% if albums %}
+<h2>Albums</h2>
+    <ol>
+    {% for album in albums %}
+
+        <li><a href="/album/{{album[0]}}"> {{album[1]}}</a></li>
+
+    {% endfor %}
+        </ol>
+{% endif %}
+
+
+
+{%endblock%}
