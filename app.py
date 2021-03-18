@@ -291,7 +291,7 @@ def album(album_id):
 @app.route('/picture/<picture_id>', methods=['GET'])
 def photoPage(picture_id):
 	comment = CommentForm(request.form)
-	return render_template('photoPage.html', photo=getPhotoFromId(picture_id), comments = getCommentsFromId(picture_id), base64=base64, form = comment, likes = getNumLikes(picture_id), tags = getTagsfromPhoto(picture_id))
+	return render_template('photoPage.html', photo=getPhotoFromId(picture_id), comments = getCommentsFromId(picture_id), base64=base64, form = comment, likes = getNumLikes(picture_id), tags = getTagsfromPhoto(picture_id), userlikes = getUsersThatLiked(picture_id))
 
 
 @app.route('/populartags', methods=['GET'])
@@ -366,6 +366,11 @@ def getNumLikes(picture_id):
 		return 0
 	else:
 		return numLikes[0]
+
+def getUsersThatLiked(picture_id):
+	cursor = conn.cursor()
+	cursor.execute("SELECT u.email FROM UserLikes AS ul JOIN Users AS u ON u.user_id = ul.user_id WHERE ul.picture_id = '{0}'".format(picture_id))
+	return cursor.fetchall()
 def getAllAlbums():
 	cursor = conn.cursor()
 	cursor.execute("SELECT album_id, album_name FROM Album")

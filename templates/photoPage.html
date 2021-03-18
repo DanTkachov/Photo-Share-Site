@@ -46,6 +46,14 @@
     {%endfor%}
     </tr>
     </div>
+    <div>
+    <p>Users who like this photo</p>
+    <ol>
+    {%for user in userlikes%}
+    <li> {{user[0]}}</li>
+    {%endfor%}
+    </ol>
+    </div>
     <div class="comments">
       <ul>
         {%for comment in comments%}
