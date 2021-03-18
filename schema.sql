@@ -84,6 +84,7 @@ CREATE TABLE AlbumContains (
 CREATE TABLE Friends (
     user_id1 INT4,
     user_id2 INT4,
+    PRIMARY KEY (user_id1, user_id2),
     CONSTRAINT friend1_fk FOREIGN KEY (user_id1)
         REFERENCES Users (user_id),
     CONSTRAINT friend2_fk FOREIGN KEY (user_id2)

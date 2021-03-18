@@ -223,7 +223,6 @@ def userProfile(uid):
 def addFriend(uid2):
 	uid = getUserIdFromEmail(flask_login.current_user.id)
 	cursor = conn.cursor()
-	#print(uid,uid2)
 	cursor.execute("INSERT IGNORE INTO Friends(user_id1, user_id2) VALUES (%s,%s)", (uid, uid2))
 	conn.commit()
 	cursor.execute("INSERT IGNORE INTO Friends(user_id2, user_id1) VALUES (%s,%s)", (uid, uid2))
@@ -231,9 +230,7 @@ def addFriend(uid2):
 	return flask.redirect(flask.url_for('userProfile', uid=uid2))
 def getUserFriends(uid):
 	cursor = conn.cursor()
-	#print(uid2)
 	cursor.execute("SELECT DISTINCT first_name FROM Users WHERE user_id = (SELECT user_id2 FROM friends WHERE user_id1 = %s)",(uid))
-	#cursor.execute("SELECT DISTINCT user_id2 FROM friends WHERE user_id1 = %s",(uid2))
 	return cursor.fetchall()
 
 @app.route('/<uid>/friendlist.html', methods=['POST'])
@@ -243,17 +240,15 @@ def viewFriends(uid):
 
 def getContributionScores():
 	cursor = conn.cursor()
-	#con = cursor.execute("SELECT user_id FROM Pictures FULL JOIN Comments ON user_id GROUP BY user_id ORDER BY COUNT(*) DESC LIMIT 10")
-	#con = cursor.execute("SELECT users.first_name FROM users WHERE user_id IN (SELECT user_id FROM Pictures GROUP BY user_id ORDER BY COUNT(*) DESC LIMIT 10)")
-	con = cursor.execute(\
+	cursor.execute(\
 		"SELECT users.first_name \
 			FROM users \
 				JOIN Pictures ON pictures.user_id = users.user_id \
 					JOIN comments ON comments.user_id = users.user_id \
 						GROUP BY users.user_id \
 							ORDER BY COUNT(*) DESC LIMIT 10")
-	print(con)
 	return cursor.fetchall()
+	
 @app.route('/useractivity.html', methods=['POST'])	
 def viewActivity():
 	return render_template('useractivity.html', con=getContributionScores(), base64=base64)
@@ -261,7 +256,7 @@ def viewActivity():
 def findFriends(uid):
 	cursor = conn.cursor()
 	logged = getUserIdFromEmail(flask_login.current_user.id)
-	con2 = cursor.execute('SELECT first_name FROM users WHERE user_id <> %s AND user_id IN (SELECT user_id2 FROM Friends WHERE user_id1 IN (SELECT user_id2 AS uid2 FROM Friends WHERE user_id1 = %s))',(logged, uid))
+	cursor.execute('SELECT first_name FROM users WHERE user_id <> %s AND user_id IN (SELECT user_id2 FROM Friends WHERE user_id1 IN (SELECT user_id2 AS uid2 FROM Friends WHERE user_id1 = %s))',(logged, uid))
 	return cursor.fetchall()
 @app.route('/fr.html', methods=['POST'])
 def recommendFriends():
