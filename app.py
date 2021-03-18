@@ -230,7 +230,7 @@ def addFriend(uid2):
 	return flask.redirect(flask.url_for('userProfile', uid=uid2))
 def getUserFriends(uid):
 	cursor = conn.cursor()
-	cursor.execute("SELECT DISTINCT first_name FROM Users WHERE user_id = (SELECT user_id2 FROM friends WHERE user_id1 = %s)",(uid))
+	cursor.execute("SELECT DISTINCT first_name FROM Users WHERE user_id IN (SELECT user_id2 FROM friends WHERE user_id1 = %s)",(uid))
 	return cursor.fetchall()
 
 @app.route('/<uid>/friendlist.html', methods=['POST'])
@@ -339,6 +339,18 @@ def getAllPhotosByTag(tag):
 	cursor = conn.cursor()
 	cursor.execute("SELECT p.picture_id, p.caption FROM Pictures AS p JOIN Tagged AS t ON p.picture_id = t.picture_id WHERE t.tag = '{0}'".format(tag))
 	return cursor.fetchall()
+
+def getYouMayLike(uid):
+	cursor = conn.cursor()
+	con = cursor.execute('\
+		SELECT DISTINCT pictures.imgdata, pictures.picture_id FROM pictures, tagged WHERE pictures.picture_id = tagged.picture_id AND Tagged.tag = (SELECT tag FROM (SELECT tag, COUNT(tag) AS T FROM Tagged, users WHERE users.user_id = %s GROUP BY Tag ORDER BY T DESC LIMIT 0,1) AS T1) UNION SELECT DISTINCT pictures.imgdata, pictures.picture_id FROM pictures, tagged WHERE pictures.picture_id = tagged.picture_id AND Tagged.tag = (SELECT tag FROM (SELECT tag, COUNT(tag) AS T FROM Tagged, users WHERE users.user_id = %s GROUP BY Tag ORDER BY T DESC LIMIT 1,1) AS T2) UNION SELECT DISTINCT pictures.imgdata, pictures.picture_id FROM pictures, tagged WHERE pictures.picture_id = tagged.picture_id AND Tagged.tag = (SELECT tag FROM (SELECT tag, COUNT(tag) AS T FROM Tagged, users WHERE users.user_id = %s GROUP BY Tag ORDER BY T DESC LIMIT 2,1) AS T2) UNION SELECT DISTINCT pictures.imgdata, pictures.picture_id FROM pictures, tagged WHERE pictures.picture_id = tagged.picture_id AND Tagged.tag = (SELECT tag FROM (SELECT tag, COUNT(tag) AS T FROM Tagged, users WHERE users.user_id = %s GROUP BY Tag ORDER BY T DESC LIMIT 3,1) AS T2) UNION SELECT DISTINCT pictures.imgdata, pictures.picture_id FROM pictures, tagged WHERE pictures.picture_id = tagged.picture_id AND Tagged.tag = (SELECT tag FROM (SELECT tag, COUNT(tag) AS T FROM Tagged, users WHERE users.user_id = %s GROUP BY Tag ORDER BY T DESC LIMIT 4,1) AS T2);', (uid,uid,uid,uid,uid))
+	print(con)
+	#cursor.execute('SELECT pictures.picture_id FROM pictures, tagged WHERE tagged.picture_id = pictures.picture_id UNION (SELECT tag, COUNT(*) AS num FROM Tagged, users WHERE users.user_id= %s GROUP BY tag ORDER BY num DESC LIMIT 5)', (uid))
+	return cursor.fetchall()
+@app.route('/YouMayLike.html', methods=['POST'])
+def viewYouMayLike():
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	return render_template('/YouMayLike.html', user=getUserInfo(uid), yml=getYouMayLike(uid), base64=base64)
 
 def getMostPopularTags():
 	cursor = conn.cursor()

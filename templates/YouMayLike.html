@@ -1,0 +1,7 @@
+<!doctype html>
+<title>Photoshare</title>
+    
+        <h1>You may also like:</h1>
+        {%for you in yml%}
+            <img src='data:image/jpg;base64, {{ base64.b64encode(you[0]).decode("ascii") }}', style="width:400px"/>
+        {%endfor%}
