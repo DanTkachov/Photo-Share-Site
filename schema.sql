@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS Album (
 
 CREATE TABLE IF NOT EXISTS Pictures (
     picture_id INT4 AUTO_INCREMENT,
-    album_id INT4,
+    album_id INT4 NOT NULL,
     user_id INT4 NOT NULL,
     likes INT4,
     imgdata LONGBLOB,
@@ -66,7 +66,8 @@ CREATE TABLE BelongsTo (
     user_id INT4,
     album_id INT4,
     CONSTRAINT album_fk FOREIGN KEY (album_id)
-        REFERENCES Album (album_id),
+        REFERENCES Album (album_id)
+        ON DELETE CASCADE,
     CONSTRAINT user_fk FOREIGN KEY (user_id)
         REFERENCES Users (user_id)
 );
@@ -74,7 +75,8 @@ CREATE TABLE AlbumContains (
     album_id INT4,
     picture_id INT4,
     CONSTRAINT album_fk_ac FOREIGN KEY (album_id)
-        REFERENCES Album (album_id),
+        REFERENCES Album (album_id)
+        ON DELETE CASCADE,
     CONSTRAINT picture_fk_ac FOREIGN KEY (picture_id)
         REFERENCES Pictures (picture_id)
 );
@@ -114,5 +116,3 @@ CREATE TABLE Tagged (
     CONSTRAINT picture_fk_t FOREIGN KEY (picture_id)
         REFERENCES Pictures (picture_id)
 );
-INSERT INTO Users (email, password) VALUES ('test@bu.edu', 'test');
-INSERT INTO Users (email, password) VALUES ('test1@bu.edu', 'test');

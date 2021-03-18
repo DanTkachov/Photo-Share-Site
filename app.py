@@ -171,6 +171,18 @@ def search():
 
 	return render_template('search.html', form=search)
 
+@app.route("/searchTag", methods=['GET','POST'])
+def searchTag():
+	if(request.method == 'POST'):
+		tag = request.form.get("searchtag")
+		return search_by_tag(tag)
+
+
+	return render_template('searchtag.html')
+def search_by_tag(tag):
+	results = getAllPhotosByTag(tag)
+	print(results)
+	return render_template('searchtag.html', results = results)
 
 '''
 	This is the search_results method
@@ -235,10 +247,17 @@ def album(album_id):
 	return render_template('albumpage.html', photos=getAlbumPhotos(album_id), album=getAlbumFromId(album_id),base64=base64)
 
 
-@app.route('/album/<album_id>/picture/<picture_id>', methods=['GET'])
-def photoPage(album_id,picture_id):
+@app.route('/picture/<picture_id>', methods=['GET'])
+def photoPage(picture_id):
 	comment = CommentForm(request.form)
 	return render_template('photoPage.html', photo=getPhotoFromId(picture_id), comments = getCommentsFromId(picture_id), base64=base64, form = comment)
+
+
+@app.route('/populartags', methods=['GET'])
+def popularTagsPage():
+	results = getMostPopularTags()
+	return render_template('populartags.html', results = results)
+
 def getUserInfo(uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT first_name, last_name, user_id FROM Users WHERE user_id = '{0}'".format(uid))
@@ -294,7 +313,19 @@ def getUserAlbums(uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT album_id, album_name FROM Album WHERE user_id='{0}'".format(uid))
 	return cursor.fetchall()
-	
+def getAllPhotosByTag(tag):
+	cursor = conn.cursor()
+	cursor.execute("SELECT p.picture_id, p.caption FROM Pictures AS p JOIN Tagged AS t ON p.picture_id = t.picture_id WHERE t.tag = '{0}'".format(tag))
+	return cursor.fetchall()
+
+def getMostPopularTags():
+	cursor = conn.cursor()
+	cursor.execute("SELECT tag, COUNT(*) AS num \
+					FROM Tagged \
+					GROUP BY tag \
+					ORDER BY num DESC \
+					LIMIT 10")
+	return cursor.fetchall()
 def isEmailUnique(email):
 	#use this to check if a email has already been registered
 	cursor = conn.cursor()
@@ -332,6 +363,14 @@ def albumsPage():
 	albums = getAllAlbums()
 	return render_template('albums.html', albums = albums)
 
+
+@app.route('/deleteAlbum/<album_id>.html', methods = ['POST'])
+def deleteAlbum(album_id):
+	cursor = conn.cursor()
+	cursor.execute("DELETE FROM Album WHERE album_id = '{0}'".format(int(album_id)))
+	conn.commit()
+	return flask.redirect(flask.url_for('hello'))
+
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
@@ -349,17 +388,21 @@ def upload_file():
 		album_id = request.form.get('album')
 		photo_data =imgfile.read()
 		cursor = conn.cursor()
-		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption) VALUES (%s, %s, %s )''' ,(photo_data,uid, caption))
+		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption, album_id) VALUES (%s, %s, %s, %s )''' ,(photo_data,uid, caption, album_id))
 		conn.commit()
-		cursor.execute("INSERT INTO Tag (tag) VALUES (%s)",(tags))
-		conn.commit()
+		tags = tags.split()
+		for tag in tags:
+			cursor.execute("INSERT IGNORE INTO Tag (tag) VALUES (%s)",(tag))
+			conn.commit()
 		numPhoto = getNumberOfPhotos()
 		print(numPhoto)
 		#numphoto = numphoto + 1
-		cursor.execute("INSERT INTO Tagged (picture_id, tag) VALUES (%s, %s)",(numPhoto, tags))
+		for tag in tags:
+			cursor.execute("INSERT IGNORE INTO Tagged (picture_id, tag) VALUES (%s, %s)",(numPhoto, tag))
+			conn.commit()
 		cursor = conn.cursor()
-		#cursor.execute('''INSERT INTO AlbumContains (album_id, picture_id) VALUES (%s, (SELECT LAST_INSERT_ID()) )''' ,(album_id))
-		#conn.commit()
+		cursor.execute('''INSERT INTO AlbumContains (album_id, picture_id) VALUES (%s, (SELECT LAST_INSERT_ID()) )''' ,(album_id))
+		conn.commit()
 		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),user=getUserInfo(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:

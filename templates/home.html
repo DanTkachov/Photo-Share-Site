@@ -1,6 +1,4 @@
 <!-- author ben lawson (balawson@bu.edu) -->
-<!doctype html>
-
 <style>
 .photoDisplay{
   margin: auto;
@@ -20,6 +18,12 @@
     padding: 20px;
 }
 </style>
+{%extends "base.html"%}
+<!doctype html>
+
+
+
+{%block content%}
 {% if message %}
   <h4>{{message}}!</h4>
 {% endif %}
@@ -33,14 +37,6 @@
   <p> Go to <a href='/profile'>profile?</a></p>
 {% endif %}
 
-<ul>
-<li><a href='/upload'>Upload a photo</a> </li>
-<li><a href='/logout'>Logout</a></li>
-<li><a href='/search'>Search</a></li>
-<li><a href='/albums'>Albums</a></li>
-<li><a href='/createalbum'>Create an Album</a></li>
-<li><a href='/'>Home</a></li>
-</ul>
 <!--
 {% if photos %}
 <h2>Here are the photos on our network</h2>
@@ -75,4 +71,5 @@
       
     {%endfor%}
 {%endif%}
+{%endblock%}
 

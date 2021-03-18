@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+{%extends "base.html"%}
+<title>Search By Tags</title>
+{%block content%}
+<h2>Search By Tags</h2>
+
+<form method="post">
+    <label for="search"> Search by a tag</label>
+    <input type="text" name="searchtag"></input>
+
+    <p>
+        <input type="submit" value="Search">
+    </p>
+</form>
+{%if results%}
+<ol>
+{%for picture in results%}
+<li><a href="/picture/{{picture[0]}}">{{picture[1]}}</a></li>
+{%endfor%}
+</ol>
+{%endif%}
+
+{%endblock%}

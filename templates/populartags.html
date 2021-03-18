@@ -1,0 +1,13 @@
+{%extends "base.html"%}
+
+{%block content%}
+<h2> Here are the most 10 most popular tags on our networks </h2>
+
+
+<ol>
+{%for tag in results%}
+    <li>{{tag[0]}} -- {{tag[1]}} photos</li>
+{%endfor%}
+</ol>
+{%endblock%}
+
