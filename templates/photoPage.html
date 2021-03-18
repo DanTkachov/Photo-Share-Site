@@ -27,7 +27,7 @@
 <div class="photoDisplay">
     <h3>{{photo[2]}}</h3>
     <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/>
-    <form method="POST" action=""><button class="btn btn-primary" type="submit" formaction = '/like/{{photo[1]}}.html' name="like" value = "">Like this Photo!</button>
+    <button class="btn btn-primary" formaction = '/like/{{photo[1]}}.html' name="like" value = "">Like this Photo!</button>
     <h3>comments</h3>
     <form method="post" action="/comment/{{photo[1]}}">
       {{form.comment.label}}:{{form.comment}}

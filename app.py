@@ -438,15 +438,21 @@ def upload_file():
 
 @app.route("/comment/<photo_id>", methods=['POST'])
 def leaveComment(photo_id):
-	cursor = conn.cursor()
-	comment = request.form.get('comment')
-	print(comment)
-	uid = getUserIdFromEmail(flask_login.current_user.id)
-	now = datetime.now()
-	formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
-	cursor.execute('''INSERT INTO Comments (user_id, comment_text, created_date) VALUES (%s,%s,%s)''',(uid,comment,formatted_date))
-	conn.commit()
-	return flask.redirect(flask.url_for('hello'))
+
+		cursor = conn.cursor()
+		comment = request.form.get('comment')
+		print(comment)
+		uid = getUserIdFromEmail(flask_login.current_user.id)
+		now = datetime.now()
+		formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
+		if(flask_login.current_user.is_authenticated):
+			cursor.execute('''INSERT INTO Comments (user_id, comment_text, created_date) VALUES (%s,%s,%s)''',(uid,comment,formatted_date))
+			conn.commit()
+		else:
+			cursor.execute('''INSERT INTO Comments  (comment_text, created_date) VALUES (%s,%s,%s)''',(comment,formatted_date))
+			conn.commit()
+		return flask.redirect(flask.url_for('hello'))
+
 
 #default page
 @app.route("/", methods=['GET','POST'])
