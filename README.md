@@ -2,7 +2,7 @@
 
 ## By Daniel Bastidas and Daniel Tkachov
 
-Using Python, SQL, MySQL Workbench, HTML, and Jinja, we created a web app that allows users to perform a multitude of tasks. Here is a full list:
+Using Python, SQL, MySQL Workbench, HTML, and Jinja, we created a web app that allows users to perform a multitude of tasks. Here is a feature list:
 ###### Photos
 - Uploading Photos
 - Creating albums for photos
