@@ -19,7 +19,7 @@ Using Python, SQL, MySQL Workbench, HTML, and Jinja, we created a web app that a
 ###### Searching
 - Allow users to search for other users by email, first name, or last name
 - Can search photos for specific tags
-- Can search albums by 
+- Can search albums
 
 ###### Other Features
 - Users can add other users as friends
